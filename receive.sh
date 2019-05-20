@@ -60,7 +60,7 @@ exec 2<>${LOGFILE}.err
 START_DATE=$(date '+%d-%m-%Y %H:%M')
 FOLDER_DATE="$(date +%Y)/$(date +%m)/$(date +%d)"
 #timeout "${6}" /usr/local/bin/rtl_fm  -d "${DEVICE}" -f "${2}"M -s 60k -g 45 -E wav -E deemp -F 9 - | /usr/bin/sox -t wav - ${NOAA_AUDIO}/audio/"${3}".wav rate 11025
-#echo timeout "${6}" /usr/local/bin/rtl_fm -f "${2}"M -s 60k -g 200 -E wav -E deemp -F 9 - 
+#echo timeout "${6}" /usr/local/bin/rtl_fm -f "${2}"M -s 60k -g 100 -E wav -E deemp -F 9 - 
 echo timeout "${6}" /usr/bin/rtl_fm -g 49.6  -d "${RTL_DEVICE}" -f "${2}"M -s 60k -E wav -E deemp -F 9 - \| /usr/bin/sox -t raw -e signed -c 1 -b 16 -r 60000 - ${NOAA_AUDIO}/audio/"${3}".wav rate 11025
 timeout "${6}" /usr/bin/rtl_fm -g 49.6  -d "${RTL_DEVICE}" -f "${2}"M -s 60k -E wav -E deemp -F 9 - | /usr/bin/sox -t raw -e signed -c 1 -b 16 -r 60000 - ${NOAA_AUDIO}/audio/"${3}".wav rate 11025
 
@@ -81,13 +81,16 @@ fi
 for i in $ENHANCEMENTS; do
 	/usr/local/bin/wxtoimg -o -m ${NOAA_HOME}/map/"${3}"-map.png -e $i ${NOAA_AUDIO}/audio/"${3}".wav ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}"-$i.jpg
 	/usr/bin/convert -quality 90 -format jpg ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}"-$i.jpg -undercolor black -fill yellow -pointsize 18 -annotate +20+20 "${1} $i ${START_DATE}" ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}"-$i.jpg
+#	/home/pi/tpost.py ${TELEGRAM_TOKEN} ${TELEGRAM_CHAT_ID} 
 #	/usr/bin/gdrive upload --parent 1gehY-0iYkNSkBU9RCDsSTexRaQ_ukN0A ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}"-$i.jpg
 done
 
-#if [ "${SUN_ELEV}" -gt "${SUN_MIN_ELEV}" ]; then
+if [ "${SUN_ELEV}" -gt "${SUN_MIN_ELEV}" ]; then
+	/usr/bin/python3 ${NOAA_HOME}/tpost.py ${TELEGRAM_TOKEN} ${TELEGRAM_CHAT_ID} ${NOAA_OUTPUT}/image/${FOLDER_DATE}/$3-MCIR-precip.jpg "MCIR Precip"
 #	python2 ${NOAA_HOME}/post.py "$1 ${START_DATE}" "$7" ${NOAA_OUTPUT}/image/${FOLDER_DATE}/$3-MCIR-precip.jpg ${NOAA_OUTPUT}/image/${FOLDER_DATE}/$3-MSA-precip.jpg ${NOAA_OUTPUT}/image/${FOLDER_DATE}/$3-HVC-precip.jpg ${NOAA_OUTPUT}/image/${FOLDER_DATE}/$3-HVCT-precip.jpg 
-#else
+else
+	/usr/bin/python3 ${NOAA_HOME}/tpost.py ${TELEGRAM_TOKEN} ${TELEGRAM_CHAT_ID} ${NOAA_OUTPUT}/image/${FOLDER_DATE}/$3-MCIR-precip.jpg "MCIR Precip"
 #	python2 ${NOAA_HOME}/post.py "$1 ${START_DATE}" "$7" ${NOAA_OUTPUT}/image/${FOLDER_DATE}/$3-MCIR-precip.jpg ${NOAA_OUTPUT}/image/${FOLDER_DATE}/$3-MCIR.jpg 
-#fi
+fi
 
-#rm ${NOAA_AUDIO}/audio/*
+rm ${NOAA_AUDIO}/audio/*
