@@ -53,6 +53,16 @@ LOGFILE=${NOAA_AUDIO}/${3}
 exec 1<>${LOGFILE}.log
 exec 2<>${LOGFILE}.err
 
+
+PASS_START=$(expr "$5" + 90)
+SUN_ELEV=$(python2 ${NOAA_HOME}/sun.py $PASS_START)
+if [ "${SUN_ELEV}" -gt "${SUN_MIN_ELEV}" ]; then
+        echo "SUN ELEV: ${SUN_ELEV} OK " 
+else
+        echo "SUN ELEV: ${SUN_ELEV} too low " 
+		exit 0
+fi
+
 # Redirect STDERR to STDOUT
 #exec 2>&1
 #RTL_DEVICE_INDEX=`/home/pi/whichrtl.sh ${RTL_DEVICE}`
