@@ -52,6 +52,15 @@ LOGFILE=${NOAA_AUDIO}/${3}
 # Open STDOUT as $LOG_FILE file for read and write.
 exec 1<>${LOGFILE}.log
 exec 2<>${LOGFILE}.err
+PASS_START=$(expr "$5" + 90)
+SUN_ELEV=$(python2 ${NOAA_HOME}/sun.py $PASS_START)
+if [ "${SUN_ELEV}" -gt "${SUN_MIN_ELEV}" ]; then
+        echo "SUN ELEV: ${SUN_ELEV} OK "
+else
+        echo "SUN ELEV: ${SUN_ELEV} too low "
+                exit 0
+fi
+
 
 START_DATE=$(date '+%d-%m-%Y %H:%M')
 FOLDER_DATE="$(date +%Y)/$(date +%m)/$(date +%d)"
@@ -67,16 +76,16 @@ if [ ! -d ${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE} ]; then
         mkdir -p ${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}
 fi
 
-echo /usr/bin/rtl_fm -M raw -f 137.9M -s 120k -g 12 -p 1 | sox -t raw -r 120k -c 2 -b 16 -e s - -t wav "${NOAA_AUDIO}/${3}.wav" rate 96k
-/usr/bin/rtl_fm -M raw -f 137.9M -s 120k -g 12 -p 1 | sox -t raw -r 120k -c 2 -b 16 -e s - -t wav "${NOAA_AUDIO}/${3}.wav" rate 96k
-echo /usr/bin/meteor_demod -B -o "${NOAA_AUDIO}/${3}.qpsk" "${NOAA_AUDIO}/${3}.wav"
-/usr/bin/meteor_demod -B -o "${NOAA_AUDIO}/${3}.qpsk" "${NOAA_AUDIO}/${3}.wav"
-echo rm "${NOAA_AUDIO}/${3}.wav"
-rm "${NOAA_AUDIO}/${3}.wav"
-echo touch -r "${NOAA_AUDIO}/${3}.wav" "${NOAA_AUDIO}/${3}.qpsk"
-touch -r "${NOAA_AUDIO}/${3}.wav" "${NOAA_AUDIO}/${3}.qpsk"
-echo /usr/bin/medet_arm "${NOAA_AUDIO}/${3}.wav" "${NOAA_AUDIO}/${3}.qpsk" "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}" -cd
-/usr/bin/medet_arm "${NOAA_AUDIO}/${3}.wav" "${NOAA_AUDIO}/${3}.qpsk" "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}" -cd
+echo timeout ${6} /usr/bin/rtl_fm -M raw -f 137.9M -s 120k -g 8 -p 1 | sox -t raw -r 120k -c 2 -b 16 -e s - -t wav "/home/pi/${3}.wav" rate 96k
+timeout ${6} /usr/bin/rtl_fm -M raw -f 137.9M -s 120k -g 8 -p 1 | sox -t raw -r 120k -c 2 -b 16 -e s - -t wav "/home/pi/${3}.wav" rate 96k
+echo /usr/bin/meteor_demod -B -o "${NOAA_AUDIO}/${3}.qpsk" "/home/pi/${3}.wav"
+/usr/bin/meteor_demod -B -o "${NOAA_AUDIO}/${3}.qpsk" "/home/pi/${3}.wav"
+echo touch -r "/home/pi/${3}.wav" "${NOAA_AUDIO}/${3}.qpsk"
+touch -r "/home/pi/${3}.wav" "${NOAA_AUDIO}/${3}.qpsk"
+echo rm "/home/pi/${3}.wav"
+#rm "/home/pi/${3}.wav"
+echo /usr/bin/medet_arm "${NOAA_AUDIO}/${3}.qpsk" "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}" -cd
+/usr/bin/medet_arm "${NOAA_AUDIO}/${3}.qpsk" "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}" -cd
 echo rm "${NOAA_AUDIO}/${3}.qpsk"
 rm "${NOAA_AUDIO}/${3}.qpsk"
 echo /usr/bin/medet_arm "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}.dec" "${NOAA_AUDIO}/${3}_122" -r 65 -g 65 -b 64 -d
