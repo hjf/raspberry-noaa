@@ -3,18 +3,19 @@
 ## debug
 # set -x
 
-. ~/.noaa.conf
+. ${HOME}/.noaa.conf
 
 PREDICTION_START=$(/usr/bin/predict -t "${NOAA_HOME}"/predict/weather.tle -p "${1}" | head -1)
 PREDICTION_END=$(/usr/bin/predict -t "${NOAA_HOME}"/predict/weather.tle -p "${1}" | tail -1)
-
+echo prediction start $PREDICTION_START
+echo prediction end $PREDICTION_END
 
 var2=$(echo "${PREDICTION_END}" | cut -d " " -f 1)
-echo $var2
+echo var2 $var2
 var21=`echo $PREDICTION_END | cut -d " " -f 1`
-echo $var21
+echo var21 $var21
 MAXELEV=$(/usr/bin/predict -t "${NOAA_HOME}"/predict/weather.tle -p "${1}" | awk -v max=0 '{if($5>max){max=$5}}END{print max}')
-
+echo maxelev $MAXELEV
 while [ "$(date --date="@${var2}" +%D)" = "$(date +%D)" ]; do
 	START_TIME=$(echo "$PREDICTION_START" | cut -d " " -f 3-4)
 	var1=$(echo "$PREDICTION_START" | cut -d " " -f 1)

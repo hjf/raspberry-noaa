@@ -94,4 +94,4 @@ else
 #	python2 ${NOAA_HOME}/post.py "$1 ${START_DATE}" "$7" ${NOAA_OUTPUT}/image/${FOLDER_DATE}/$3-MCIR-precip.jpg ${NOAA_OUTPUT}/image/${FOLDER_DATE}/$3-MCIR.jpg 
 fi
 
-rm ${NOAA_AUDIO}/audio/*
+rm ${NOAA_AUDIO}/audio/"${3}".wav

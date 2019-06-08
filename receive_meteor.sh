@@ -58,7 +58,7 @@ if [ "${SUN_ELEV}" -gt "${SUN_MIN_ELEV}" ]; then
         echo "SUN ELEV: ${SUN_ELEV} OK "
 else
         echo "SUN ELEV: ${SUN_ELEV} too low "
-                exit 0
+#                exit 0
 fi
 
 
@@ -76,20 +76,20 @@ if [ ! -d ${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE} ]; then
         mkdir -p ${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}
 fi
 
-echo timeout ${6} /usr/bin/rtl_fm -M raw -f 137.9M -s 120k -g 8 -p 1 | sox -t raw -r 120k -c 2 -b 16 -e s - -t wav "/home/pi/${3}.wav" rate 96k
-timeout ${6} /usr/bin/rtl_fm -M raw -f 137.9M -s 120k -g 8 -p 1 | sox -t raw -r 120k -c 2 -b 16 -e s - -t wav "/home/pi/${3}.wav" rate 96k
+echo timeout ${6} /usr/bin/rtl_fm -M raw -f 137.9M -s 288k -g 12 -p 0 | sox -t raw -r 288k -c 2 -b 16 -e s - -t wav "/home/pi/${3}.wav" rate 180k
+timeout ${6} /usr/bin/rtl_fm -M raw -f 137.9M -s 288k -g 12 -p 0 | sox -t raw -r 288k -c 2 -b 16 -e s - -t wav "/home/pi/${3}.wav" rate 180k
 echo /usr/bin/meteor_demod -B -o "${NOAA_AUDIO}/${3}.qpsk" "/home/pi/${3}.wav"
 /usr/bin/meteor_demod -B -o "${NOAA_AUDIO}/${3}.qpsk" "/home/pi/${3}.wav"
 echo touch -r "/home/pi/${3}.wav" "${NOAA_AUDIO}/${3}.qpsk"
 touch -r "/home/pi/${3}.wav" "${NOAA_AUDIO}/${3}.qpsk"
 echo rm "/home/pi/${3}.wav"
-#rm "/home/pi/${3}.wav"
-echo /usr/bin/medet_arm "${NOAA_AUDIO}/${3}.qpsk" "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}" -cd
-/usr/bin/medet_arm "${NOAA_AUDIO}/${3}.qpsk" "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}" -cd
+rm "/home/pi/${3}.wav"
+echo /usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_AUDIO}/${3}.qpsk" "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}" -cd
+/usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_AUDIO}/${3}.qpsk" "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}" -cd
 echo rm "${NOAA_AUDIO}/${3}.qpsk"
 rm "${NOAA_AUDIO}/${3}.qpsk"
-echo /usr/bin/medet_arm "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}.dec" "${NOAA_AUDIO}/${3}_122" -r 65 -g 65 -b 64 -d
-/usr/bin/medet_arm "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}.dec" "${NOAA_AUDIO}/${3}_122" -r 65 -g 65 -b 64 -d
+echo /usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}.dec" "${NOAA_AUDIO}/${3}_122" -r 65 -g 65 -b 64 -d
+/usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}.dec" "${NOAA_AUDIO}/${3}_122" -r 65 -g 65 -b 64 -d
 echo /usr/bin/convert -quality 90 -format jpg "${NOAA_AUDIO}/${3}_122.bmp" -undercolor black -fill yellow -pointsize 18 -annotate +20+20 "${1} $i ${START_DATE}" ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}".jpg
 /usr/bin/convert -quality 90 -format jpg "${NOAA_AUDIO}/${3}_122.bmp" -undercolor black -fill yellow -pointsize 18 -annotate +20+20 "${1} $i ${START_DATE}" ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}".jpg
 echo rm "${NOAA_AUDIO}/${3}_122.bmp"
@@ -98,4 +98,4 @@ rm "${NOAA_AUDIO}/${3}_122.bmp"
 echo /usr/bin/python3 ${NOAA_HOME}/tpost.py ${TELEGRAM_TOKEN} ${TELEGRAM_CHAT_ID} ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}".jpg "Meteor M2 False Color. MEL ${7}"
 /usr/bin/python3 ${NOAA_HOME}/tpost.py ${TELEGRAM_TOKEN} ${TELEGRAM_CHAT_ID} ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}".jpg "Meteor M2 False Color. MEL ${7}"
 
-rm ${NOAA_AUDIO}/audio/*
+#rm ${NOAA_AUDIO}/audio/*

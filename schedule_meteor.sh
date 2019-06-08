@@ -3,7 +3,7 @@
 ## debug
 # set -x
 
-. ~/.noaa.conf
+. ${HOME}/.noaa.conf
 
 PREDICTION_START=$(/usr/bin/predict -t "${NOAA_HOME}"/predict/weather.tle -p "${1}" | head -1)
 PREDICTION_END=$(/usr/bin/predict -t "${NOAA_HOME}"/predict/weather.tle -p "${1}" | tail -1)
