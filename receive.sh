@@ -60,10 +60,10 @@ exec 2<>${LOGFILE}.err
 #echo Device ${RTL_DEVICE} index ${RTL_DEVICE_INDEX}
 START_DATE=$(date '+%d-%m-%Y %H:%M')
 FOLDER_DATE="$(date +%Y)/$(date +%m)/$(date +%d)"
-#timeout "${6}" /usr/local/bin/rtl_fm  -d "${DEVICE}" -f "${2}"M -s 60k -g 85 -E wav -E deemp -F 9 - | /usr/bin/sox -t wav - ${NOAA_AUDIO}/audio/"${3}".wav rate 11025
+#timeout "${6}" /usr/local/bin/rtl_fm  -d "${DEVICE}" -f "${2}"M -s 60k -g 125 -E wav -E deemp -F 9 - | /usr/bin/sox -t wav - ${NOAA_AUDIO}/audio/"${3}".wav rate 11025
 #echo timeout "${6}" /usr/local/bin/rtl_fm -f "${2}"M -s 60k -g 100 -E wav -E deemp -F 9 - 
-echo timeout "${6}" /usr/bin/rtl_fm -g 8  -d "${RTL_DEVICE}" -f "${2}"M -s 60k -E wav -E deemp -F 9 - \| /usr/bin/sox -t raw -e signed -c 1 -b 16 -r 60000 - ${NOAA_AUDIO}/audio/"${3}".wav rate 11025
-timeout "${6}" /usr/bin/rtl_fm -g 8  -d "${RTL_DEVICE}" -f "${2}"M -s 60k -E wav -E deemp -F 9 - | /usr/bin/sox -t raw -e signed -c 1 -b 16 -r 60000 - ${NOAA_AUDIO}/audio/"${3}".wav rate 11025
+echo timeout "${6}" /usr/bin/rtl_fm -g 12  -d "${RTL_DEVICE}" -f "${2}"M -s 60k -E wav -E deemp -F 9 - \| /usr/bin/sox -t raw -e signed -c 1 -b 16 -r 60000 - ${NOAA_AUDIO}/audio/"${3}".wav rate 11025
+timeout "${6}" /usr/bin/rtl_fm -g 12  -d "${RTL_DEVICE}" -f "${2}"M -s 60k -E wav -E deemp -F 9 - | /usr/bin/sox -t raw -e signed -c 1 -b 16 -r 60000 - ${NOAA_AUDIO}/audio/"${3}".wav rate 11025
 sleep 10
 PASS_START=$(expr "$5" + 90)
 SUN_ELEV=$(python2 ${NOAA_HOME}/sun.py $PASS_START)
@@ -95,3 +95,4 @@ else
 fi
 
 rm ${NOAA_AUDIO}/audio/"${3}".wav
+/usr/bin/rsync -avz -e ssh /var/www/html/ wximg@10.42.42.2:noaarecv/

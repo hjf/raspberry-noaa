@@ -58,7 +58,7 @@ if [ "${SUN_ELEV}" -gt "${SUN_MIN_ELEV}" ]; then
         echo "SUN ELEV: ${SUN_ELEV} OK "
 else
         echo "SUN ELEV: ${SUN_ELEV} too low "
-                exit 0
+#                exit 0
 fi
 
 
@@ -76,8 +76,8 @@ if [ ! -d ${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE} ]; then
         mkdir -p ${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}
 fi
 
-echo timeout ${6} /usr/bin/rtl_fm -M raw -f 137.9M -s 768k -g 8 -p 0 | sox -t raw -r 768k -c 2 -b 16 -e s - -t wav "/home/pi/${3}.wav" rate 192k
-timeout ${6} /usr/bin/rtl_fm -M raw -f 137.9M -s 768k -g 8 -p 0 | sox -t raw -r 768k -c 2 -b 16 -e s - -t wav "/home/pi/${3}.wav" rate 192k
+echo timeout ${6} /usr/bin/rtl_fm -M raw -f 137.9M -s 384k -g 20 -p 0 | sox -t raw -r 384k -c 2 -b 16 -e s - -t wav "/home/pi/${3}.wav" rate 192k
+timeout ${6} /usr/bin/rtl_fm -M raw -f 137.9M -s 384k -g 20 -p 0 | sox -t raw -r 384k -c 2 -b 16 -e s - -t wav "/home/pi/${3}.wav" rate 192k
 echo /usr/bin/meteor_demod -B -o "${NOAA_AUDIO}/${3}.qpsk" "/home/pi/${3}.wav"
 /usr/bin/meteor_demod -B -o "${NOAA_AUDIO}/${3}.qpsk" "/home/pi/${3}.wav"
 echo touch -r "/home/pi/${3}.wav" "${NOAA_AUDIO}/${3}.qpsk"
