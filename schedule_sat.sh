@@ -5,6 +5,7 @@
 
 . ${HOME}/.noaa.conf
 
+#echo usr/bin/predict -t "${NOAA_HOME}"/predict/weather.tle -p "${1}" 
 PREDICTION_START=$(/usr/bin/predict -t "${NOAA_HOME}"/predict/weather.tle -p "${1}" | head -1)
 PREDICTION_END=$(/usr/bin/predict -t "${NOAA_HOME}"/predict/weather.tle -p "${1}" | tail -1)
 echo prediction start $PREDICTION_START
