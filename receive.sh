@@ -79,9 +79,9 @@ if [ ! -d ${NOAA_OUTPUT}/image/${FOLDER_DATE} ]; then
 fi
 
 if [ "${SUN_ELEV}" -gt "${SUN_MIN_ELEV}" ]; then
-	ENHANCEMENTS="ZA MCIR MCIR-precip MSA MSA-precip HVC-precip HVCT-precip HVC HVCT"
+	ENHANCEMENTS="MCIR-precip ZA MCIR MSA MSA-precip HVC-precip HVCT-precip HVC HVCT"
 else
-	ENHANCEMENTS="ZA MCIR MCIR-precip"
+	ENHANCEMENTS="MCIR-precip ZA MCIR"
 fi
 
 /usr/bin/nice -n 10 /usr/local/bin/wxmap -T "${1}" -H "${4}" -p 0 -l 0 -o "${PASS_START}" ${NOAA_AUDIO}/map/"${3}"-map.png
