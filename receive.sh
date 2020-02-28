@@ -53,6 +53,7 @@ LOGFILE=${NOAA_AUDIO}/${3}
 exec 1<>${LOGFILE}.log
 exec 2<>${LOGFILE}.err
 
+/usr/bin/nice -n 20 /usr/local/bin/wxmap -T "${1}" -H "${4}" -p 0 -l 0 -o "${PASS_START}" ${NOAA_AUDIO}/map/"${3}"-map.png &
 
 # Redirect STDERR to STDOUT
 #exec 2>&1
@@ -84,7 +85,6 @@ else
 	ENHANCEMENTS="MCIR-precip ZA MCIR"
 fi
 
-/usr/bin/nice -n 10 /usr/local/bin/wxmap -T "${1}" -H "${4}" -p 0 -l 0 -o "${PASS_START}" ${NOAA_AUDIO}/map/"${3}"-map.png
 for i in $ENHANCEMENTS; do
 	/usr/bin/nice -n 10 /usr/local/bin/wxtoimg -o -m ${NOAA_AUDIO}/map/"${3}"-map.png -e $i ${NOAA_AUDIO}/audio/"${3}".wav ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}"-$i.jpg
 	/usr/bin/nice -n 10 /usr/bin/convert -quality 90 -format jpg ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}"-$i.jpg -undercolor black -fill yellow -pointsize 18 -annotate +20+20 "${1} $i ${START_DATE} MEL ${7}" ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}"-$i.jpg
@@ -104,4 +104,5 @@ done
 #fi
 
 rm ${NOAA_AUDIO}/audio/"${3}".wav
+rm ${NOAA_AUDIO}/map/"${3}"-map.png
 /usr/bin/rsync -avz -e ssh /var/www/html/ wximg@10.42.42.2:noaarecv/
