@@ -53,6 +53,8 @@ LOGFILE=${NOAA_AUDIO}/${3}
 exec 1<>${LOGFILE}.log
 exec 2<>${LOGFILE}.err
 
+PASS_START=$(expr "$5" + 90)
+SUN_ELEV=$(python2 ${NOAA_HOME}/sun.py $PASS_START)
 /usr/bin/nice -n 20 /usr/local/bin/wxmap -T "${1}" -H "${4}" -p 0 -l 0 -o "${PASS_START}" ${NOAA_AUDIO}/map/"${3}"-map.png &
 
 # Redirect STDERR to STDOUT
@@ -72,8 +74,6 @@ sleep 5
 echo timeout "${6}" /usr/bin/rtl_fm  -g "${RECEIVE_GAIN}"  -f "${2}"M -s 50k -E wav -E deemp -F 9 - | /usr/bin/sox -t raw -e signed -c 1 -b 16 -r 50000 - ${NOAA_AUDIO}/audio/"${3}".wav rate 11025
 timeout "${6}" /usr/bin/rtl_fm  -g "${RECEIVE_GAIN}"  -f "${2}"M -s 50k -E wav -E deemp -F 9 - | /usr/bin/sox -t raw -e signed -c 1 -b 16 -r 50000 - ${NOAA_AUDIO}/audio/"${3}".wav rate 11025
 sleep 10
-PASS_START=$(expr "$5" + 90)
-SUN_ELEV=$(python2 ${NOAA_HOME}/sun.py $PASS_START)
 
 if [ ! -d ${NOAA_OUTPUT}/image/${FOLDER_DATE} ]; then
 	mkdir -p ${NOAA_OUTPUT}/image/${FOLDER_DATE}

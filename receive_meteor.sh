@@ -65,7 +65,7 @@ fi
 START_DATE=$(date '+%d-%m-%Y %H:%M')
 FOLDER_DATE="$(date +%Y)/$(date +%m)/$(date +%d)"
 /usr/bin/pkill rtl_fm
-sleep 5
+sleep 1
 
 
 if [ ! -d ${NOAA_OUTPUT}/image/${FOLDER_DATE} ]; then
@@ -77,18 +77,32 @@ if [ ! -d ${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE} ]; then
 fi
 echo /usr/bin/killall rtl_fm
 /usr/bin/killall -q rtl_fm
-sleep 5
+sleep 1
 
 rm -f /tmp/meteor_iq
 
 echo mkfifo /tmp/meteor_iq
+echo fifo creating
 mkfifo /tmp/meteor_iq
+echo exec mkfifo
+nice -n 10 /usr/bin/meteor_demod -O 6 -f 96 -B -R 1000 -b 50 -s 144k /tmp/meteor_iq -o "${NOAA_AUDIO}/${3}.qpsk" &
+
+exec 3<> /tmp/meteor_iq
+
+echo fnctl
+/usr/bin/perl -MFcntl -e 'fcntl(STDOUT, 1031, 104857600)'>/tmp/meteor_iq
+
+echo starting demod
+echo starting rtl_fm
 echo /usr/bin/meteor_demod -B -s 144k /tmp/meteor_iq -o "${NOAA_AUDIO}/${3}.qpsk" 
-nice -n 10 /usr/bin/meteor_demod -B -R 1000 -b 80 -s 144k /tmp/meteor_iq -o "${NOAA_AUDIO}/${3}.qpsk" &
+#nice -n 10 /usr/bin/meteor_demod  -B -R 1000 -b 50 -s 144k /tmp/meteor_iq -o "${NOAA_AUDIO}/${3}.qpsk" &
 echo timeout ${6} /usr/bin/rtl_fm -M raw -s 144k -f "${2}"M -E dc -g "${RECEIVE_GAIN}" /tmp/meteor_iq
-#timeout ${6} /usr/bin/rtl_fm -M raw -s 144k -f "${2}"M -E dc -g "${RECEIVE_GAIN}" /tmp/meteor_iq
-timeout ${6} /usr/bin/rtl_fm -M raw -s 144k -f "${2}"M -g 25 -E dc /tmp/meteor_iq
-sleep 5
+timeout ${6} /usr/bin/rtl_fm -M raw -s 144k -f "${2}"M -E dc -g "${RECEIVE_GAIN}" /tmp/meteor_iq
+exec 3>&-
+
+#timeout ${6} /usr/bin/rtl_fm -M raw -s 144k -f "${2}"M -g 50 -E dc /tmp/meteor_iq
+while [ `/usr/bin/pgrep -c meteor_demod` -ne "0" ]; do sleep 1; done
+#sleep 5
 echo rm -f /tmp/meteor_iq
 rm -f /tmp/meteor_iq
 
@@ -123,7 +137,7 @@ echo /usr/bin/python3 ${NOAA_HOME}/tpost.py ${TELEGRAM_TOKEN} ${TELEGRAM_CHAT_ID
 /usr/bin/python3 ${NOAA_HOME}/tpost.py ${TELEGRAM_TOKEN} ${TELEGRAM_CHAT_ID} ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}_122".jpg "Meteor M2 False Color. MEL ${7}"
 else
 echo /usr/bin/python3 ${NOAA_HOME}/tpost.py ${TELEGRAM_TOKEN} ${TELEGRAM_CHAT_ID} ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}_IR".jpg "Meteor M2 IR MEL ${7}"
-/usr/bin/python3 ${NOAA_HOME}/tpost.py ${TELEGRAM_TOKEN} ${TELEGRAM_CHAT_ID} ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}".jpg "Meteor M2 False Color. MEL ${7}"
+/usr/bin/python3 ${NOAA_HOME}/tpost.py ${TELEGRAM_TOKEN} ${TELEGRAM_CHAT_ID} ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}".jpg "Meteor M2 IR. MEL ${7}"
 
 fi
 
