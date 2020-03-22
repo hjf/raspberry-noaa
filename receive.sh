@@ -67,10 +67,10 @@ FOLDER_DATE="$(date +%Y)/$(date +%m)/$(date +%d)"
 #echo timeout "${6}" /usr/local/bin/rtl_fm -f "${2}"M -s 50k -g 100 -E wav -E deemp -F 9 - 
 #echo timeout "${6}" /usr/bin/rtl_fm -g 50  -d "${RTL_DEVICE}" -f "${2}"M -s 50k -E wav -E deemp -F 9 - \| /usr/bin/sox -t raw -e signed -c 1 -b 16 -r 50000 - ${NOAA_AUDIO}/audio/"${3}".wav rate 11025
 #timeout "${6}" /usr/bin/rtl_fm -g 12  -d "${RTL_DEVICE}" -f "${2}"M -s 50k -E wav -E deemp -F 9 - | /usr/bin/sox -t raw -e signed -c 1 -b 16 -r 50000 - ${NOAA_AUDIO}/audio/"${3}".wav rate 11025
-/usr/sbin/uhubctl -l 1-1 -p 2 -a 0
-sleep 2
-/usr/sbin/uhubctl -l 1-1 -p 2 -a 1
-sleep 5
+#/usr/sbin/uhubctl -l 1-1 -p 2 -a 0
+#sleep 2
+#/usr/sbin/uhubctl -l 1-1 -p 2 -a 1
+#sleep 5
 echo timeout "${6}" /usr/bin/rtl_fm  -g "${RECEIVE_GAIN}"  -f "${2}"M -s 50k -E wav -E deemp -F 9 - | /usr/bin/sox -t raw -e signed -c 1 -b 16 -r 50000 - ${NOAA_AUDIO}/audio/"${3}".wav rate 11025
 timeout "${6}" /usr/bin/rtl_fm  -g "${RECEIVE_GAIN}"  -f "${2}"M -s 50k -E wav -E deemp -F 9 - | /usr/bin/sox -t raw -e signed -c 1 -b 16 -r 50000 - ${NOAA_AUDIO}/audio/"${3}".wav rate 11025
 sleep 10

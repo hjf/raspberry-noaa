@@ -75,38 +75,32 @@ fi
 if [ ! -d ${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE} ]; then
         mkdir -p ${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}
 fi
+echo /usr/bin/killall rtl_fm
+/usr/bin/killall -q rtl_fm
+sleep 1
 
-rm -f /tmp/meteor_iq
+rm -f /usbstick/${3}_iq
 
-echo mkfifo /tmp/meteor_iq
-mkfifo /tmp/meteor_iq
+echo timeout ${6} rtl_fm -M raw -f "${2}"M -s 288k -g 32  sox -t raw -r 288k -c 2 -b 16 -e s - -t wav /usbstick/${3}_iq_raw.wav rate 144k
+timeout ${6} rtl_fm -M raw -f "${2}"M -s 288k -g 32 | sox -t raw -r 288k -c 2 -b 16 -e s - -t wav /usbstick/${3}_iq_raw.wav rate 144k
+echo "NORMALIZING . . ."
 
-echo nice -n 10 /usr/bin/meteor_demod -B -R 1000 -b 80 -s 180k /tmp/meteor_iq -o "${NOAA_AUDIO}/${3}.qpsk" 
-nice -n 10 /usr/bin/meteor_demod -B -R 1000 -b 80 -s 180k /tmp/meteor_iq -o "${NOAA_AUDIO}/${3}.qpsk" &
+sox /usbstick/${3}_iq_raw.wav /usbstick/${3}_iq.wav gain -n
+#rm -f /usbstick/${3}_iq_raw.wav
 
-exec 3<> /tmp/meteor_iq
+echo nice -n 10 /usr/bin/meteor_demod -B -R 1000 -b 80 /usbstick/${3}_iq.wav -o "${NOAA_AUDIO}/${3}.qpsk"
+nice -n 15 /usr/bin/meteor_demod -B -R 1000 -b 80 /usbstick/${3}_iq.wav -o "${NOAA_AUDIO}/${3}.qpsk"
 
-echo fnctl
-/usr/bin/perl -MFcntl -e 'fcntl(STDOUT, 1031, 1048576000)'>/tmp/meteor_iq
+#echo rm -f /usbstick/${3}_iq
 
-echo timeout ${6} /usr/bin/rtl_fm -M raw -s 180k -f "${2}"M -E dc -g "${RECEIVE_GAIN}" /tmp/meteor_iq
-#timeout ${6} /usr/bin/rtl_fm -M raw -s 180k -f "${2}"M -E dc -g "${RECEIVE_GAIN}" /tmp/meteor_iq
-timeout ${6} /usr/bin/rtl_fm -M raw -s 180k -f "${2}"M -E dc -g 30 /tmp/meteor_iq
-exec 3>&-
-
-while [ `/usr/bin/pgrep -c meteor_demod` -ne "0" ]; do sleep 1; done
-
-echo rm -f /tmp/meteor_iq
-rm -f /tmp/meteor_iq
-
-echo /usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_AUDIO}/${3}.qpsk" "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}" -cd -na 
-/usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_AUDIO}/${3}.qpsk" "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}" -cd -na 
+echo /usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_AUDIO}/${3}.qpsk" "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}" -cd
+/usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_AUDIO}/${3}.qpsk" "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}" -cd -na
 echo rm "${NOAA_AUDIO}/${3}.qpsk"
 rm "${NOAA_AUDIO}/${3}.qpsk"
 echo /usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}.dec" "${NOAA_AUDIO}/${3}_122" -r 65 -g 65 -b 64 -d
-/usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}.dec" "${NOAA_AUDIO}/${3}_122" -r 65 -g 65 -b 64 -d -na -t
+/usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}.dec" "${NOAA_AUDIO}/${3}_122" -r 65 -g 65 -b 64 -d -na
 echo /usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}.dec" "${NOAA_AUDIO}/${3}_122" -r 65 -g 65 -b 64 -d
-/usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}.dec" "${NOAA_AUDIO}/${3}_IR" -r 68 -g 68 -b 68 -d -na -t
+/usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}.dec" "${NOAA_AUDIO}/${3}_IR" -r 68 -g 68 -b 68 -d -na
 echo /home/pi/meteor_rectify/rectify.py "${NOAA_AUDIO}/${3}_122.bmp"
 /home/pi/meteor_rectify/rectify.py "${NOAA_AUDIO}/${3}_122.bmp"
 echo /home/pi/meteor_rectify/rectify.py "${NOAA_AUDIO}/${3}_IR.bmp"
@@ -136,4 +130,3 @@ fi
 
 
 #rm ${NOAA_AUDIO}/audio/*
-
