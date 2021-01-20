@@ -55,7 +55,8 @@ exec 2<>${LOGFILE}.err
 
 PASS_START=$(expr "$5" + 90)
 SUN_ELEV=$(python2 ${NOAA_HOME}/sun.py $PASS_START)
-/usr/bin/nice -n 20 /usr/local/bin/wxmap -T "${1}" -H "${4}" -p 0 -l 0 -o "${PASS_START}" ${NOAA_AUDIO}/map/"${3}"-map.png &
+echo /usr/bin/nice -n 20 /usr/local/bin/wxmap -T "${1}" -H "${4}" -M 0 -p 0 -l 0 -o "${PASS_START}" ${NOAA_AUDIO}/map/"${3}"-map.png 
+/usr/bin/nice -n 20 /usr/local/bin/wxmap -T "${1}" -H "${4}" -M 0 -p 0 -l 0 -o "${PASS_START}" ${NOAA_AUDIO}/map/"${3}"-map.png &
 
 # Redirect STDERR to STDOUT
 #exec 2>&1
@@ -73,8 +74,6 @@ FOLDER_DATE="$(date +%Y)/$(date +%m)/$(date +%d)"
 #sleep 5
 echo timeout "${6}" /usr/bin/rtl_fm  -g "${RECEIVE_GAIN}"  -f "${2}"M -s 50k -E wav -E deemp -F 9 - | /usr/bin/sox -t raw -e signed -c 1 -b 16 -r 50000 - ${NOAA_AUDIO}/audio/"${3}".wav rate 11025
 timeout "${6}" /usr/bin/rtl_fm  -g "${RECEIVE_GAIN}"  -f "${2}"M -s 50k -E wav -E deemp -F 9 - | /usr/bin/sox -t raw -e signed -c 1 -b 16 -r 50000 - ${NOAA_AUDIO}/audio/"${3}".wav rate 11025
-sleep 10
-
 if [ ! -d ${NOAA_OUTPUT}/image/${FOLDER_DATE} ]; then
 	mkdir -p ${NOAA_OUTPUT}/image/${FOLDER_DATE}
 fi
@@ -86,8 +85,8 @@ else
 fi
 
 for i in $ENHANCEMENTS; do
-	/usr/bin/nice -n 10 /usr/local/bin/wxtoimg -o -m ${NOAA_AUDIO}/map/"${3}"-map.png -e $i ${NOAA_AUDIO}/audio/"${3}".wav ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}"-$i.jpg
-	/usr/bin/nice -n 10 /usr/bin/convert -quality 90 -format jpg ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}"-$i.jpg -undercolor black -fill yellow -pointsize 18 -annotate +20+20 "${1} $i ${START_DATE} MEL ${7}" ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}"-$i.jpg
+	/usr/bin/nice -n 15 /usr/local/bin/wxtoimg -o -m ${NOAA_AUDIO}/map/"${3}"-map.png -e $i ${NOAA_AUDIO}/audio/"${3}".wav ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}"-$i.jpg
+	/usr/bin/nice -n 15 /usr/bin/convert -quality 90 -format jpg ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}"-$i.jpg -undercolor black -fill yellow -pointsize 18 -annotate +20+20 "${1} $i ${START_DATE} MEL ${7}" ${NOAA_OUTPUT}/image/${FOLDER_DATE}/"${3}"-$i.jpg
 	if [ "${i}" = "MCIR-precip" ]; then
 		/usr/bin/python3 ${NOAA_HOME}/tpost.py ${TELEGRAM_TOKEN} ${TELEGRAM_CHAT_ID} ${NOAA_OUTPUT}/image/${FOLDER_DATE}/$3-MCIR-precip.jpg "${1} MCIR Precip MEL: ${7}" &
 	fi
@@ -103,6 +102,7 @@ done
 #	python2 ${NOAA_HOME}/post.py "$1 ${START_DATE}" "$7" ${NOAA_OUTPUT}/image/${FOLDER_DATE}/$3-MCIR-precip.jpg ${NOAA_OUTPUT}/image/${FOLDER_DATE}/$3-MCIR.jpg 
 #fi
 
+#cp ${NOAA_AUDIO}/audio/"${3}".wav /home/pi/
 rm ${NOAA_AUDIO}/audio/"${3}".wav
 rm ${NOAA_AUDIO}/map/"${3}"-map.png
-/usr/bin/rsync -avz -e ssh /var/www/html/ wximg@10.42.42.2:noaarecv/
+/usr/bin/rsync --remove-source-files  -avz -e ssh /var/www/html/ wximg@10.42.42.2:noaarecv/

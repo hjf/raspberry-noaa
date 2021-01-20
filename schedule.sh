@@ -27,10 +27,10 @@ grep "METEOR-M 2" "${NOAA_HOME}"/predict/weather.txt -A 2 >> "${NOAA_HOME}"/pred
 for i in $(atq | awk '{print $1}');do atrm "$i";done
 
 #Schedule Satellite Passes:
-"${NOAA_HOME}"/schedule_sat.sh "NOAA 19" 137.1000
-"${NOAA_HOME}"/schedule_sat.sh "NOAA 18" 137.9125
-"${NOAA_HOME}"/schedule_sat.sh "NOAA 15" 137.6200
+"${NOAA_HOME}"/schedule_sat.sh "NOAA 19" 137.100000
+"${NOAA_HOME}"/schedule_sat.sh "NOAA 18" 137.912500
+"${NOAA_HOME}"/schedule_sat.sh "NOAA 15" 137.620000
 "${NOAA_HOME}"/schedule_meteor.sh "METEOR-M 2" 137.100
 #echo "${NOAA_HOME}"/schedule_meteor.sh "METEOR-M2 2" 137.900
-"${NOAA_HOME}"/schedule_meteor.sh "METEOR-M2 2" 137.900
+#"${NOAA_HOME}"/schedule_meteor.sh "METEOR-M2 2" 137.900
 #"${NOAA_HOME}"/schedule_iss.sh "ISS (ZARYA)" 145.8000

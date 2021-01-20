@@ -76,25 +76,28 @@ if [ ! -d ${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE} ]; then
         mkdir -p ${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}
 fi
 
+
+
 rm -f /tmp/meteor_iq
 
 echo mkfifo /tmp/meteor_iq
 mkfifo /tmp/meteor_iq
 
-echo nice -n 10 /usr/bin/meteor_demod -B -R 1000 -b 80 -s 180k /tmp/meteor_iq -o "${NOAA_AUDIO}/${3}.qpsk" 
-nice -n 10 /usr/bin/meteor_demod -B -R 1000 -b 80 -s 180k /tmp/meteor_iq -o "${NOAA_AUDIO}/${3}.qpsk" &
+echo nice -n 10 /usr/bin/meteor_demod -B -R 1000 -b 80 -s 170k /tmp/meteor_iq -o "${NOAA_AUDIO}/${3}.qpsk" 
+nice -n 10 /usr/bin/meteor_demod -B -R 1000 -b 80 -s 170k /tmp/meteor_iq -o "${NOAA_AUDIO}/${3}.qpsk" &
 
 exec 3<> /tmp/meteor_iq
 
 echo fnctl
 /usr/bin/perl -MFcntl -e 'fcntl(STDOUT, 1031, 1048576000)'>/tmp/meteor_iq
 
-echo timeout ${6} /usr/bin/rtl_fm -M raw -s 180k -f "${2}"M -E dc -g "${RECEIVE_GAIN}" /tmp/meteor_iq
-#timeout ${6} /usr/bin/rtl_fm -M raw -s 180k -f "${2}"M -E dc -g "${RECEIVE_GAIN}" /tmp/meteor_iq
-timeout ${6} /usr/bin/rtl_fm -M raw -s 180k -f "${2}"M -E dc -g 30 /tmp/meteor_iq
+echo timeout ${6} /usr/bin/rtl_fm -M raw -s 170k -f "${2}"M -E dc -g "${RECEIVE_GAIN}" /tmp/meteor_iq
+#timeout ${6} /usr/bin/rtl_fm -M raw -s 170k -f "${2}"M -E dc -g "${RECEIVE_GAIN}" /tmp/meteor_iq
+timeout ${6} /usr/bin/rtl_fm -M raw -s 170k -f "${2}"M -E dc -g "${RECEIVE_GAIN}" /tmp/meteor_iq
 exec 3>&-
 
 while [ `/usr/bin/pgrep -c meteor_demod` -ne "0" ]; do sleep 1; done
+
 
 echo rm -f /tmp/meteor_iq
 rm -f /tmp/meteor_iq
@@ -103,6 +106,20 @@ echo /usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_AUDIO}/${3}.qpsk" "${NOAA_OU
 /usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_AUDIO}/${3}.qpsk" "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}" -cd -na 
 echo rm "${NOAA_AUDIO}/${3}.qpsk"
 rm "${NOAA_AUDIO}/${3}.qpsk"
+
+
+#echo /usr/bin/scp "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}.dec" hjf@cloudserver:lri/watchdir/
+#/usr/bin/scp "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}.dec" hjf@cloudserver:lri/watchdir/
+#sleep 2
+#echo /usr/bin/ssh hjf@cloudserver "/home/hjf/lri/lrpt.pl /home/hjf/lri/watchdir/${3}.dec"
+#/usr/bin/ssh hjf@cloudserver "/home/hjf/lri/lrpt.pl /home/hjf/lri/watchdir/${3}.dec"
+
+#res=$?
+#echo resultado $res
+#if [ "${res}" -eq 0 ]; then
+#exit 0
+#fi
+
 echo /usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}.dec" "${NOAA_AUDIO}/${3}_122" -r 65 -g 65 -b 64 -d
 /usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}.dec" "${NOAA_AUDIO}/${3}_122" -r 65 -g 65 -b 64 -d -na -t
 echo /usr/bin/nice -n 10 /usr/bin/medet_arm "${NOAA_OUTPUT}/meteor_raw/${FOLDER_DATE}/${3}.dec" "${NOAA_AUDIO}/${3}_122" -r 65 -g 65 -b 64 -d
